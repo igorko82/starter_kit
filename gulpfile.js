@@ -21,6 +21,8 @@
 
 // Include Gulp & Tools We'll Use
 var gulp = require('gulp');
+var gulpif = require('gulp-if');
+var sprite = require('css-sprite').stream;
 var $ = require('gulp-load-plugins')();
 var del = require('del');
 var runSequence = require('run-sequence');
@@ -40,6 +42,41 @@ var AUTOPREFIXER_BROWSERS = [
   'bb >= 10'
 ];
 
+// generate sprite.png and _sprite.scss
+gulp.task('sprites', function () {
+  return gulp.src('./app/images/*.png')
+    .pipe(sprite({
+      name: 'sprite.png',
+      style: '_sprite.scss',
+      cssPath: '../images/sprite',
+      processor: 'scss'
+    }))
+    .pipe(gulpif('*.png', gulp.dest('./app/images/sprite/')))
+    .pipe(gulpif('*.scss', gulp.dest('./app/styles/')));
+});
+// generate sprite.png and _sprite.scss with retina
+gulp.task('retina', function () {
+  return gulp.src('./app/images/*.png')
+    .pipe(sprite({
+      name: 'sprite.png',
+      style: '_sprite.scss',
+      cssPath: '../images/sprite',
+      processor: 'scss',
+      retina: true
+    }))
+    .pipe(gulpif('*.png', gulp.dest('./app/images/sprite/')))
+    .pipe(gulpif('*.scss', gulp.dest('./app/styles/')));
+});
+// generate scss with base64 encoded images
+gulp.task('base64', function () {
+  return gulp.src('./app/images/*.png')
+    .pipe(sprite({
+      base64: true,
+      style: '_base64.scss',
+      processor: 'scss'
+    }))
+    .pipe(gulp.dest('./app/styles/'));
+});
 // Lint JavaScript
 gulp.task('jshint', function () {
   return gulp.src('app/scripts/**/*.js')
